@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Tử vi cá nhân chính xác - B360 (tuvi2025-B360)</title>
+  <style>
+    :root{--fg:#1b1b1b;--gold:#d4af37}
+    body{font-family:Georgia, 'Times New Roman', serif;background:linear-gradient(180deg,#fff8d6 0%,#fff2cc 100%);color:var(--fg);margin:0;padding:18px}
+    header{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:12px}
+    .logo-wrap{width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#000;box-shadow:0 6px 20px rgba(0,0,0,0.15)}
+    .logo-svg{width:120px;height:120px}
+    h1{margin:0;font-family:Arial,Helvetica,sans-serif;font-size:20px;color:#2b2b2b}
+    .form{max-width:880px;margin:10px auto;padding:18px;border-radius:10px;background:#fffefb;border:1px solid #f0e1c3}
+    label{display:block;margin:10px 0 6px;font-weight:700}
+    input[type="text"], input[type="date"], input[type="time"], select{width:100%;padding:10px;border-radius:6px;border:1px solid #e6d9c3;background:#fff}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    .btn{display:inline-block;padding:12px 18px;border-radius:10px;border:none;background:var(--gold);color:#000;font-weight:800;cursor:pointer}
+    .note{font-size:0.92rem;color:#6b4f2b;margin-top:8px}
+    .lunar-small{font-size:0.95rem;color:#6b4f2b;margin-top:6px}
+    .result-top{max-width:880px;margin:18px auto;padding:18px;border-radius:10px;background:#fff6d6;border:1px solid #f5c542;color:#111;display:none}
+    .result-top h2{margin:0 0 8px;font-size:18px}
+    .result-top h3{margin:10px 0 6px;color:#8a5c00}
+    .menh-detail{max-width:980px;margin:18px auto;padding-bottom:60px;display:none} /* hidden templates */
+    article.menh{border-bottom:1px solid #f0e2c9;padding:18px 0}
+    article.menh h2{margin:0 0 8px;font-size:1.05rem;color:#2b2b2b}
+    article.menh h3{margin:12px 0 6px;font-size:1rem;color:#8a5c00}
+    p{color:#2b2b2b;text-align:justify}
+    footer{margin:30px 0;text-align:center}
+    .share-buttons{display:flex;gap:12px;justify-content:center}
+    .share-buttons button{padding:10px 14px;border-radius:8px;border:1px solid #e6d9c3;background:#fff;color:var(--gold);font-weight:700;cursor:pointer}
+    @media (max-width:720px){ .row{flex-direction:column} .logo-wrap{width:110px;height:110px} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-wrap" aria-hidden="true">
+      <!-- Yin-yang simple svg with B360 text -->
+      <svg class="logo-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="B360 logo">
+        <circle cx="100" cy="100" r="96" fill="#000"/>
+        <path d="M100 4 A96 96 0 1 0 100 196 A48 48 0 1 1 100 4 Z" fill="#fff"/>
+        <path d="M100 196 A96 96 0 1 0 100 4 A48 48 0 1 1 100 196 Z" fill="#000" opacity="0.9"/>
+        <circle cx="100" cy="50" r="10" fill="#000"/>
+        <circle cx="100" cy="150" r="10" fill="#fff"/>
+        <text x="100" y="116" font-family="DejaVu Sans, Arial, sans-serif" font-size="36" fill="#ffd27a" font-weight="700" text-anchor="middle">B360</text>
+      </svg>
+    </div>
+    <h1>TỬ VI CÁ NHÂN CHÍNH XÁC — B360</h1>
+    <div style="font-size:0.95rem;color:#6b4f2b">Phiên bản: tuvi2025-B360 — Luận giải theo năm âm lịch (chuẩn)</div>
+  </header>
+
+  <main>
+    <section class="form" aria-label="Form xem tử vi">
+      <label for="hoten">Họ và tên</label>
+      <input id="hoten" type="text" placeholder="Nguyễn Văn A" />
+
+      <div class="row">
+        <div class="col">
+          <label for="ngaysinh">Ngày sinh (Dương lịch)</label>
+          <input id="ngaysinh" type="date" />
+          <div id="lunar-display" class="lunar-small" style="display:none"></div>
+        </div>
+        <div class="col">
+          <label for="giosinh">Giờ sinh (HH:MM) — tùy chọn</label>
+          <input id="giosinh" type="time" />
+        </div>
+      </div>
+
+      <label for="gender">Giới tính</label>
+      <select id="gender">
+        <option value="Nam">Nam</option>
+        <option value="Nữ">Nữ</option>
+      </select>
+
+      <div style="text-align:center;margin-top:12px">
+        <button id="xem" class="btn">Xem tử vi</button>
+      </div>
+      <div class="note">Kết quả luận giải mở khi bấm "Xem tử vi". Hệ thống chuyển Dương → Âm offline theo thuật toán Chuẩn (Julian/NewMoon).</div>
+    </section>
+
+    <section id="result" class="result-top" aria-live="polite"></section>
+
+    <!-- hidden storage for 60-menh templates (kept in DOM but hidden) -->
+    <section class="menh-detail" id="menh-list" aria-hidden="true"></section>
+
+    <footer>
+      <div class="share-buttons">
+        <button id="share-fb">Chia sẻ Facebook</button>
+        <button id="share-zalo">Chia sẻ Zalo</button>
+        <button id="download-pdf">Tải PDF</button>
+      </div>
+    </footer>
+  </main>
+
+  <!-- jsPDF for client-side PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+  /********************************************************
+   * 60 nạp âm — danh sách (unique, dùng để tra mệnh)
+   ********************************************************/
+  const menhNames = [
+"Hải Trung Kim","Lư Trung Hỏa","Sơn Đầu Hỏa","Tích Lịch Hỏa","Tùng Bách Mộc","Tang Đố Mộc","Tuyền Trung Thủy","Đại Trạch Thổ","Đại Hải Thủy","Ốc Thượng Thổ",
+"Phúc Đăng Hỏa","Dương Liễu Mộc","Trường Lưu Thủy","Sa Trung Thổ","Thạch Lựu Mộc","Kim Bạch Kim","Thoa Xuyến Kim","Đại Lâm Mộc","Lộ Bàng Thổ","Kiếm Phong Kim",
+"Thủy Xuyên Thủy","Bạch Lạp Kim","Ngọc Đăng Kim","Hà Trung Thủy","Lâm Viên Mộc","Sa Mạc Thổ","Nguyệt Dạ Thủy","Huyền Vân Thổ","Cẩm Lộ Mộc","Kim Tinh Kim",
+"Bích Thượng Thổ","Bích Lâm Mộc","Sơn Hạ Hỏa","Thiên Thượng Hỏa","Trường Sơn Thủy","Mai Trúc Mộc","Hỏa Long Hỏa","Thiên Sơn Thổ","Mộc Nguyên Mộc","Bảo Thạch Kim",
+"Đại Khuê Thủy","Thạch Sơn Hỏa","Thủy Dưỡng Thủy","Ngọc Đăng Kim II","Hà Trung Thủy II","Lâm Viên Mộc II","Sang Thạch Kim","Phú Đăng Hỏa","Đại Lâm Mộc II","Lộ Bàng Thổ II",
+"Sơn Hạ Hỏa II","Bình Địa Mộc","Tích Lịch Hỏa II","Bình Địa Thổ","Sa Mạc Thổ II","Thảo Dã Mộc","Trường Lưu Thủy II","Bích Lâm Mộc II","Phong Liêu Mộc","Hải Tâm Thủy"
+  ];
+
+  /************************************************
+   * Lunar conversion (Julian Day / New Moon)
+   * Implementation adapted from widely used algorithms
+   * Returns {day, month, year, isLeap}
+   ************************************************/
+  function INT(d){ return Math.floor(d); }
+
+  function jdFromDate(dd, mm, yy){
+    var a = INT((14 - mm)/12);
+    var y = yy + 4800 - a;
+    var m = mm + 12*a - 3;
+    var jd = dd + INT((153*m + 2)/5) + 365*y + INT(y/4) - INT(y/100) + INT(y/400) - 32045;
+    if (jd < 2299161){
+      jd = dd + INT((153*m + 2)/5) + 365*y + INT(y/4) - 32083;
+    }
+    return jd;
+  }
+
+  function NewMoon(k){
+    var T = k/1236.85;
+    var T2 = T*T;
+    var T3 = T2*T;
+    var dr = Math.PI/180;
+    var Jd1 = 2415020.75933 + 29.53058868*k + 0.0001178*T2 - 0.000000155*T3;
+    Jd1 = Jd1 + 0.00033*Math.sin((166.56 + 132.87*T - 0.009173*T2)*dr);
+    var M = 359.2242 + 29.10535608*k - 0.0000333*T2 - 0.00000347*T3;
+    var Mpr = 306.0253 + 385.81691806*k + 0.0107306*T2 + 0.00001236*T3;
+    var F = 21.2964 + 390.67050646*k - 0.0016528*T2 - 0.00000239*T3;
+    var C1 = (0.1734 - 0.000393*T)*Math.sin(M*dr) + 0.0021*Math.sin(2*M*dr)
+             - 0.4068*Math.sin(Mpr*dr) + 0.0161*Math.sin(2*Mpr*dr)
+             - 0.0004*Math.sin(3*Mpr*dr) + 0.0104*Math.sin(2*F*dr)
+             - 0.0051*Math.sin((M + Mpr)*dr) - 0.0074*Math.sin((M - Mpr)*dr)
+             + 0.0004*Math.sin((2*F + M)*dr) - 0.0004*Math.sin((2*F - M)*dr)
+             - 0.0006*Math.sin((2*F + Mpr)*dr) + 0.0010*Math.sin((2*F - Mpr)*dr)
+             + 0.0005*Math.sin((2*Mpr + M)*dr);
+    var deltaT;
+    if (T < -11){
+      deltaT = 0.001 + 0.000839*T + 0.0002261*T2 - 0.00000845*T3 - 0.000000081*T*T3;
+    } else {
+      deltaT = -0.000278 + 0.000265*T + 0.000262*T2;
+    }
+    var JdNew = Jd1 + C1 - deltaT;
+    return JdNew;
+  }
+
+  function getSunLongitude(jdn){
+    var T = (jdn - 2451545.0) / 36525;
+    var T2 = T*T;
+    var dr = Math.PI/180;
+    var M = 357.52910 + 35999.05030*T - 0.0001559*T2 - 0.00000048*T*T2;
+    var L0 = 280.46645 + 36000.76983*T + 0.0003032*T2;
+    var DL = (1.914600 - 0.004817*T - 0.000014*T2)*Math.sin(M*dr)
+           + (0.019993 - 0.000101*T)*Math.sin(2*M*dr)
+           + 0.000290*Math.sin(3*M*dr);
+    var L = L0 + DL;
+    L = L*dr;
+    L = L - Math.PI*2*(INT(L/(Math.PI*2)));
+    return INT(L/Math.PI*6);
+  }
+
+  function getLunarMonth11(yy){
+    var off = jdFromDate(31,12,yy) - 2415021.076998695;
+    var k = INT(off/29.530588853);
+    var nm = NewMoon(k);
+    var sunLong = getSunLongitude(Math.floor(nm+0.5));
+    if (sunLong >= 9){
+      nm = NewMoon(k-1);
+    }
+    return INT(nm+0.5);
+  }
+
+  function getLeapMonthOffset(a11){
+    var k = INT((a11 - 2415021.076998695)/29.530588853 + 0.5);
+    var last = 0;
+    var i = 1;
+    var arc = getSunLongitude(INT(NewMoon(k+i)+0.5));
+    do {
+      last = arc;
+      i++;
+      arc = getSunLongitude(INT(NewMoon(k+i)+0.5));
+    } while(arc != last && i < 14);
+    return i-1;
+  }
+
+  // --- FIXED convertSolar2Lunar: carefully handles year assignment for lunar year ---
+  function convertSolar2Lunar(dd, mm, yy){
+    var dayNumber = jdFromDate(dd, mm, yy);
+    var k = INT((dayNumber - 2415021.076998695)/29.530588853);
+    var monthStart = INT(NewMoon(k)+0.5);
+    if (monthStart > dayNumber){
+      monthStart = INT(NewMoon(k-1)+0.5);
+    }
+    var a11 = getLunarMonth11(yy);
+    var b11 = a11;
+    var lunarYear;
+    // If monthStart is before a11 (which is month 11 of yy), then this lunar month belongs to previous lunar year
+    if (a11 >= monthStart){
+      a11 = getLunarMonth11(yy-1);
+      lunarYear = yy - 1;
+    } else {
+      b11 = getLunarMonth11(yy+1);
+      lunarYear = yy;
+    }
+    var lunarDay = dayNumber - monthStart + 1;
+    var diff = INT((monthStart - a11)/29);
+    var lunarMonth = diff + 11;
+    var leap = 0;
+    if (b11 - a11 > 365){
+      var leapMonthDiff = getLeapMonthOffset(a11);
+      if (diff >= leapMonthDiff){
+        lunarMonth = diff + 10;
+        if (diff == leapMonthDiff) leap = 1;
+      }
+    }
+    if (lunarMonth > 12) lunarMonth -= 12;
+    return { day: lunarDay, month: lunarMonth, year: lunarYear, isLeap: leap };
+  }
+
+  // mapping lunar year -> index in 60-cycle (base: 1984 = Giáp Tý index 0)
+  function yearToIndexByLunar(lunarYear){
+    return ((lunarYear - 1984) % 60 + 60) % 60;
+  }
+
+  /************************************************
+   * Helper: derive element from menh name
+   ************************************************/
+  function elementOfMenh(name){
+    if(/Kim/i.test(name)) return 'Kim';
+    if(/Mộc/i.test(name)) return 'Mộc';
+    if(/Thủy/i.test(name)) return 'Thủy';
+    if(/Hỏa/i.test(name)) return 'Hỏa';
+    if(/Thổ/i.test(name)) return 'Thổ';
+    return 'Thổ';
+  }
+  function tuongSinhTuongKhac(elem){
+    switch(elem){
+      case 'Kim': return {sinh:'Thổ', khac:'Mộc'};
+      case 'Mộc': return {sinh:'Thủy', khac:'Kim'};
+      case 'Thủy': return {sinh:'Kim', khac:'Hỏa'};
+      case 'Hỏa': return {sinh:'Mộc', khac:'Thủy'};
+      case 'Thổ': return {sinh:'Hỏa', khac:'Thủy'};
+      default: return {sinh:'', khac:''};
+    }
+  }
+
+  /************************************************
+   * Luận giải mẫu (formal) — tạo nội dung 9 mục cho 1 mệnh
+   * Bạn có thể chỉnh từng mệnh sau này; ở đây dùng mẫu có điều chỉnh theo tên mệnh.
+   ************************************************/
+  function generateFullAnalysis(menhName){
+    var elem = elementOfMenh(menhName);
+    var rel = tuongSinhTuongKhac(elem);
+    return {
+      "Tính cách": `Người mệnh ${menhName} thường có tính cách điềm tĩnh, tầm nhìn thực tế và tinh thần trách nhiệm rõ rệt. Họ thường suy nghĩ thấu đáo trước khi hành động, giữ lời và có khả năng lãnh đạo khi cần. Những phẩm chất này giúp họ ghi điểm trong môi trường chuyên nghiệp và trong gia đình.`,
+      "Công danh – Sự nghiệp": `Sự nghiệp của người mệnh ${menhName} tiến triển tốt khi họ chọn ngành nghề phù hợp với thiên hướng: quản lý, quản trị dự án, nghiên cứu chuyên sâu hoặc nghề mang tính hệ thống. Lộ trình phát triển cần xây dựng chiến lược dài hạn, rèn luyện năng lực lãnh đạo và xây dựng đội ngũ đáng tin cậy.`,
+      "Tài vận": `Tài lộc thường đến từ nỗ lực bền bỉ và kế hoạch rõ ràng. Người mệnh ${menhName} nên ưu tiên đầu tư dài hạn, quản lý tài sản thận trọng và tránh các quyết định tài chính mang tính cảm tính. Giai đoạn thuận lợi sẽ có quý nhân phù trợ nếu biết tận dụng mối quan hệ đúng lúc.`,
+      "Gia đạo": `Trong gia đình, mệnh ${menhName} đa phần là trụ cột, chu toàn nghĩa vụ. Để duy trì hòa khí, cần lưu ý lắng nghe và chia sẻ công việc gia đình, tránh áp đặt quan điểm cá nhân. Giao tiếp rõ ràng và sự cảm thông giúp gia đình vững vàng trước nhiều thử thách.`,
+      "Tình duyên": `Tình cảm với người mệnh ${menhName} thường ổn định khi gặp đối tác chín chắn, có cùng giá trị sống. Họ trân trọng mối quan hệ bền vững, thể hiện trách nhiệm và sự kiên định. Lời khuyên: hãy chủ động biểu lộ cảm xúc để tăng sự gần gũi, tránh giữ cảm xúc quá kín đáo.`,
+      "Sức khỏe": `Nên chú trọng duy trì nhịp sống điều độ, ngủ nghỉ hợp lý và vận động nhẹ nhàng. Người mệnh ${menhName} dễ gặp vấn đề do làm việc quá sức hoặc căng thẳng kéo dài; kiểm tra sức khỏe định kỳ và cân bằng chế độ dinh dưỡng sẽ giúp duy trì thể lực.`,
+      "Màu hợp – Kỵ": `Màu hợp thường dựa vào ngũ hành: người mệnh ${menhName} nên ưu tiên màu tương sinh để gia tăng năng lượng tích cực, ví dụ dùng tông tương sinh trong trang phục, vật dụng và không gian sống. Tránh màu quá xung khắc trong giai đoạn cần ổn định tinh thần hoặc tài chính.`,
+      "Hướng hợp – Kỵ": `Hướng nhà/ hướng cửa/ hướng giường nên ưu tiên các phương vị sinh khí và an vượng; tránh những phương vị gây thoái khí hoặc xung khắc. Cụ thể hướng hợp còn phải căn cứ vào cung phi cá nhân — khi cần thiết, hãy tham khảo chuyên gia phong thủy để chọn hướng ưu việt nhất.`,
+      "Tương sinh – Tương khắc": `Ngũ hành chính: ${elem}. Hành tương sinh (hỗ trợ): ${rel.sinh}. Hành tương khắc (cần cân bằng): ${rel.khac}. Khi chọn màu, hướng, nghề nghiệp hoặc đối tác, ưu tiên yếu tố tương sinh để tăng vượng khí và hạn chế yếu tố tương khắc trong các giai đoạn trọng yếu.`
+    };
+  }
+
+  /************************************************
+   * Build hidden templates (60 menh) — optional,
+   * we keep menh-list in DOM (hidden) so result can copy innerHTML if needed.
+   ************************************************/
+  (function buildTemplates(){
+    const container = document.getElementById('menh-list');
+    menhNames.forEach((name, i) => {
+      const idx = i+1;
+      const article = document.createElement('article');
+      article.className = 'menh';
+      article.id = 'menh-' + idx;
+      const parts = generateFullAnalysis(name);
+      let html = `<h2>${idx}. ${name}</h2>`;
+      const order = ["Tính cách","Công danh – Sự nghiệp","Tài vận","Gia đạo","Tình duyên","Sức khỏe","Màu hợp – Kỵ","Hướng hợp – Kỵ","Tương sinh – Tương khắc"];
+      order.forEach(k => {
+        html += `<h3>${k}</h3><p>${parts[k.replace(' – ', ' – ')] || parts[k] || ''}</p>`;
+      });
+      // ensure H3 key names match object keys
+      article.innerHTML = html;
+      container.appendChild(article);
+    });
+  })();
+
+  /************************************************
+   * UI: show lunar date under date input (dd/mm/yyyy)
+   ************************************************/
+  document.getElementById('ngaysinh').addEventListener('change', function(){
+    const v = this.value;
+    const el = document.getElementById('lunar-display');
+    if(!v){ el.style.display='none'; return; }
+    const parts = v.split('-'); // YYYY-MM-DD
+    const y = parseInt(parts[0],10), m = parseInt(parts[1],10), d = parseInt(parts[2],10);
+    const lunar = convertSolar2Lunar(d,m,y);
+    el.style.display = 'block';
+    el.textContent = 'Âm lịch: ' + String(lunar.day).padStart(2,'0') + '/' + String(lunar.month).padStart(2,'0') + '/' + lunar.year + (lunar.isLeap? ' (tháng nhuận)':'');
+  });
+
+  /************************************************
+   * Main: compute mệnh by lunar year and display 9-section analysis
+   ************************************************/
+  document.getElementById('xem').addEventListener('click', function(){
+    const hoten = (document.getElementById('hoten').value || '').trim();
+    const dateISO = document.getElementById('ngaysinh').value;
+    const giosinh = (document.getElementById('giosinh').value || '').trim();
+    const gender = document.getElementById('gender').value || 'Nam';
+    if(!hoten){ alert('Vui lòng nhập họ tên'); return; }
+    if(!dateISO){ alert('Vui lòng chọn ngày sinh (Dương lịch)'); return; }
+    const parts = dateISO.split('-');
+    const y = parseInt(parts[0],10), m = parseInt(parts[1],10), d = parseInt(parts[2],10);
+    const lunar = convertSolar2Lunar(d,m,y);
+    const lunarYear = lunar.year;
+    const idx = yearToIndexByLunar(lunarYear);
+    const menhName = menhNames[idx] || 'Không xác định';
+    const analysis = generateFullAnalysis(menhName);
+
+    // Build result HTML (9 sections)
+    const res = document.getElementById('result');
+    const dd = String(lunar.day).padStart(2,'0'), mm = String(lunar.month).padStart(2,'0'), yy = lunar.year;
+    let html = `<h2>${hoten} — ${menhName}</h2>`;
+    html += `<div><strong>Giới tính:</strong> ${gender}</div>`;
+    html += `<div><strong>Giờ sinh:</strong> ${giosinh?giosinh:'(không cung cấp)'}</div>`;
+    html += `<div><strong>Ngày dương lịch:</strong> ${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}</div>`;
+    html += `<div><strong>Ngày âm lịch:</strong> ${dd}/${mm}/${yy}${lunar.isLeap? ' (tháng nhuận)':''}</div>`;
+    html += `<hr style="border:none;border-top:1px solid #f0dca8;margin:8px 0"/>`;
+    html += `<h3>Tính cách</h3><p>${analysis["Tính cách"]}</p>`;
+    html += `<h3>Công danh – Sự nghiệp</h3><p>${analysis["Công danh – Sự nghiệp"]}</p>`;
+    html += `<h3>Tài vận</h3><p>${analysis["Tài vận"]}</p>`;
+    html += `<h3>Gia đạo</h3><p>${analysis["Gia đạo"]}</p>`;
+    html += `<h3>Tình duyên</h3><p>${analysis["Tình duyên"]}</p>`;
+    html += `<h3>Sức khỏe</h3><p>${analysis["Sức khỏe"]}</p>`;
+    html += `<h3>Màu hợp – Kỵ</h3><p>${analysis["Màu hợp – Kỵ"]}</p>`;
+    html += `<h3>Hướng hợp – Kỵ</h3><p>${analysis["Hướng hợp – Kỵ"]}</p>`;
+    html += `<h3>Tương sinh – Tương khắc</h3><p>${analysis["Tương sinh – Tương khắc"]}</p>`;
+
+    res.innerHTML = html;
+    res.style.display = 'block';
+    res.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  /************************************************
+   * PDF export (result only)
+   ************************************************/
+  document.getElementById('download-pdf').addEventListener('click', async function(){
+    const { jsPDF } = window.jspdf;
+    const res = document.getElementById('result');
+    if(!res || res.style.display==='none'){ alert('Vui lòng xem tử vi trước khi tải PDF'); return; }
+    const hoten = (document.getElementById('hoten').value || 'tuvi').replace(/\s+/g,'_');
+    const doc = new jsPDF({unit:'pt', format:'a4'});
+    doc.setFontSize(16);
+    doc.text('Tử vi cá nhân chính xác - B360', 40, 60);
+    doc.setFontSize(12);
+    const lines = doc.splitTextToSize(res.innerText, 520);
+    doc.text(lines, 40, 100);
+    doc.save(hoten + '.pdf');
+  });
+
+  // Placeholder share
+  document.getElementById('share-fb').addEventListener('click', function(){ alert('Chia sẻ Facebook (demo)'); });
+  document.getElementById('share-zalo').addEventListener('click', function(){ alert('Chia sẻ Zalo (demo)'); });
+
+  </script>
+</body>
+</html>
